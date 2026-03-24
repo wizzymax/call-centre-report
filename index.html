@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bonga Habari — Inbound Performance Report | 24 March 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1e2530;
+    --border: #2a3240;
+    --accent: #1f8ef1;
+    --accent2: #e05c5c;
+    --accent3: #27c97a;
+    --accent4: #f5a623;
+    --text: #e6edf3;
+    --text-muted: #7d8da8;
+    --text-dim: #4a5568;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    line-height: 1.5;
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .report-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), #0a56b0);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .brand-text h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; }
+  .brand-text p { font-size: 12px; color: var(--text-muted); }
+  .report-meta { text-align: right; }
+  .report-meta .date { font-size: 15px; font-weight: 600; color: var(--accent); }
+  .report-meta .subtitle { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .badge {
+    display: inline-block;
+    background: rgba(31,142,241,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(31,142,241,0.3);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 5px;
+  }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .kpi-card.blue::before { background: var(--accent); }
+  .kpi-card.red::before { background: var(--accent2); }
+  .kpi-card.green::before { background: var(--accent3); }
+  .kpi-card.orange::before { background: var(--accent4); }
+  .kpi-label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .kpi-value { font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 1; }
+  .kpi-value.blue { color: var(--accent); }
+  .kpi-value.red { color: var(--accent2); }
+  .kpi-value.green { color: var(--accent3); }
+  .kpi-value.orange { color: var(--accent4); }
+  .kpi-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; }
+  .kpi-sub span { font-weight: 600; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--text-muted);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--border);
+  }
+
+  /* ── GRID LAYOUT ── */
+  .row { display: grid; gap: 16px; margin-bottom: 20px; }
+  .row.two { grid-template-columns: 1fr 1fr; }
+  .row.three { grid-template-columns: 2fr 1fr; }
+  .row.full { grid-template-columns: 1fr; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card-title {
+    font-size: 13.5px; font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-title small {
+    font-size: 11px; color: var(--text-muted); font-weight: 400;
+  }
+
+  /* ── CHARTS ── */
+  .chart-wrap { position: relative; }
+  canvas { max-width: 100%; }
+
+  /* ── TABLES ── */
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  thead tr { border-bottom: 2px solid var(--border); }
+  th {
+    text-align: left; padding: 7px 10px;
+    font-size: 11px; font-weight: 600;
+    color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  th.num { text-align: right; }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--text); }
+  td.num { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Variance cells */
+  .var-pos { color: var(--accent3); font-weight: 600; }
+  .var-neg { color: var(--accent2); font-weight: 600; }
+  .var-warn { color: var(--accent4); font-weight: 600; }
+
+  /* ── COMPARISON TABLE ── */
+  .cmp-header-row { background: var(--surface2); }
+  .cmp-header-row td {
+    font-weight: 700; font-size: 12px;
+    color: var(--text); border-bottom: 2px solid var(--border);
+  }
+  .kpi-name { font-weight: 500; color: var(--text); }
+
+  /* ── MINI STAT ROW ── */
+  .mini-stats { display: flex; gap: 14px; margin-bottom: 16px; }
+  .mini-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    flex: 1;
+    text-align: center;
+  }
+  .mini-stat .mv { font-size: 18px; font-weight: 700; }
+  .mini-stat .ml { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+  /* ── AGENT BAR ── */
+  .agent-bar { display: flex; align-items: center; gap: 8px; }
+  .agent-bar-track {
+    flex: 1; height: 6px; background: var(--surface2);
+    border-radius: 3px; overflow: hidden;
+  }
+  .agent-bar-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent), #0a56b0);
+    transition: width 0.3s;
+  }
+  .agent-bar-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); width: 28px; text-align: right; }
+
+  /* ── STATUS PILL ── */
+  .pill {
+    display: inline-block; border-radius: 20px;
+    padding: 2px 9px; font-size: 10.5px; font-weight: 600;
+  }
+  .pill-green { background: rgba(39,201,122,0.15); color: var(--accent3); }
+  .pill-red   { background: rgba(224,92,92,0.15);  color: var(--accent2); }
+  .pill-blue  { background: rgba(31,142,241,0.15); color: var(--accent); }
+
+  /* ── FOOTER ── */
+  .report-footer {
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; color: var(--text-dim);
+  }
+
+  /* ── ANNOTATIONS ── */
+  .comment-cell {
+    font-style: italic; color: var(--text-muted); font-size: 12px;
+  }
+  .alert-comment { color: var(--accent2); }
+  .good-comment  { color: var(--accent3); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════ HEADER -->
+<div class="report-header">
+  <div class="brand">
+    <div class="brand-icon">📞</div>
+    <div class="brand-text">
+      <h1>Bonga Habari</h1>
+      <p>Call Centre Performance Report</p>
+    </div>
+  </div>
+  <div class="report-meta">
+    <div class="date">24 March 2026</div>
+    <div class="subtitle">Daily Operations Summary</div>
+    <div class="badge">INBOUND REPORT</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ TODAY KPI CARDS -->
+<div class="section-title">Today's Snapshot — 24 March 2026</div>
+<div class="kpi-grid">
+  <div class="kpi-card blue">
+    <div class="kpi-label">Total Inbound Calls</div>
+    <div class="kpi-value blue">232</div>
+    <div class="kpi-sub"><span>203</span> answered · <span>28</span> dropped</div>
+  </div>
+  <div class="kpi-card orange">
+    <div class="kpi-label">Distinct Callers</div>
+    <div class="kpi-value orange">154</div>
+    <div class="kpi-sub"><span>34%</span> repeat call rate</div>
+  </div>
+  <div class="kpi-card red">
+    <div class="kpi-label">Abandon Rate</div>
+    <div class="kpi-value red">12%</div>
+    <div class="kpi-sub">Target: <span>&lt;10%</span> · Above threshold</div>
+  </div>
+  <div class="kpi-card green">
+    <div class="kpi-label">Tickets Created</div>
+    <div class="kpi-value green">100</div>
+    <div class="kpi-sub"><span>45</span> FCR · <span>30.2%</span> FCR rate</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ HOURLY CHART -->
+<div class="row full">
+  <div class="card">
+    <div class="card-title">
+      Inbound Performance by Hour — 24 March 2026
+      <small>Calls answered · Dropped on Queue · % Abandon</small>
+    </div>
+    <div class="chart-wrap" style="height:280px;">
+      <canvas id="hourlyChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ WEEKLY KPI TABLE + AGENT TABLE -->
+<div class="row three">
+  <!-- Weekly Comparison -->
+  <div class="card">
+    <div class="card-title">Weekly KPI Comparison <small>14th vs 21st March 2026</small></div>
+    <table>
+      <thead>
+        <tr>
+          <th>KPI</th>
+          <th class="num">14th</th>
+          <th class="num">21st</th>
+          <th class="num">Variance</th>
+          <th>Comment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="kpi-name">Total Inbound Calls</td>
+          <td class="num">468</td>
+          <td class="num">300</td>
+          <td class="num var-pos">▼ 35.9%</td>
+          <td class="comment-cell good-comment">Reduction in calls</td>
+        </tr>
+        <tr>
+          <td class="kpi-name">Calls Answered</td>
+          <td class="num">411</td>
+          <td class="num">281</td>
+          <td class="num">—</td>
+          <td class="comment-cell">—</td>
+        </tr>
+        <tr>
+          <td class="kpi-name">Call Abandon Rate</td>
+          <td class="num">12.18%</td>
+          <td class="num">6.33%</td>
+          <td class="num var-pos">▼ 48.0%</td>
+          <td class="comment-cell good-comment">Reduction in abandoned calls</td>
+        </tr>
+        <tr>
+          <td class="kpi-name">Distinct Customers</td>
+          <td class="num">301</td>
+          <td class="num">208</td>
+          <td class="num">—</td>
+          <td class="comment-cell">—</td>
+        </tr>
+        <tr>
+          <td class="kpi-name">Repeat Calls</td>
+          <td class="num">35.68%</td>
+          <td class="num">30.67%</td>
+          <td class="num var-pos">▼ 14.1%</td>
+          <td class="comment-cell good-comment">Reduction in repeat calls</td>
+        </tr>
+        <tr>
+          <td class="kpi-name">Tickets Raised</td>
+          <td class="num">257</td>
+          <td class="num">145</td>
+          <td class="num">—</td>
+          <td class="comment-cell">—</td>
+        </tr>
+        <tr>
+          <td class="kpi-name">% Customers with Ticket</td>
+          <td class="num">85.38%</td>
+          <td class="num">69.71%</td>
+          <td class="num var-neg">▼ 22.5%</td>
+          <td class="comment-cell alert-comment">⚠ Needs to be addressed</td>
+        </tr>
+        <tr>
+          <td class="kpi-name">FCR Tickets</td>
+          <td class="num">100</td>
+          <td class="num">63</td>
+          <td class="num">—</td>
+          <td class="comment-cell">—</td>
+        </tr>
+        <tr>
+          <td class="kpi-name">% FCR</td>
+          <td class="num">38.91%</td>
+          <td class="num">43.45%</td>
+          <td class="num var-pos">▲ 10.4%</td>
+          <td class="comment-cell good-comment">Increase in FCR</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Agent Summary -->
+  <div class="card">
+    <div class="card-title">Agent Performance <small>24 Mar 2026</small></div>
+    <table>
+      <thead>
+        <tr>
+          <th>Agent</th>
+          <th class="num">Inbound</th>
+          <th class="num">Outbound</th>
+          <th class="num">Tickets</th>
+          <th class="num">FCR</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Glory</strong></td>
+          <td class="num">41</td>
+          <td class="num">1</td>
+          <td class="num">26</td>
+          <td class="num">14</td>
+        </tr>
+        <tr>
+          <td>Agatha</td>
+          <td class="num">33</td>
+          <td class="num">5</td>
+          <td class="num">22</td>
+          <td class="num">16</td>
+        </tr>
+        <tr>
+          <td>Philip</td>
+          <td class="num">24</td>
+          <td class="num">4</td>
+          <td class="num">3</td>
+          <td class="num"></td>
+        </tr>
+        <tr>
+          <td>Enos</td>
+          <td class="num">23</td>
+          <td class="num">17</td>
+          <td class="num">14</td>
+          <td class="num">3</td>
+        </tr>
+        <tr>
+          <td>Irene</td>
+          <td class="num">22</td>
+          <td class="num">3</td>
+          <td class="num"></td>
+          <td class="num"></td>
+        </tr>
+        <tr>
+          <td>James</td>
+          <td class="num">8</td>
+          <td class="num">3</td>
+          <td class="num">8</td>
+          <td class="num">2</td>
+        </tr>
+        <tr>
+          <td>Prosister</td>
+          <td class="num">4</td>
+          <td class="num">1</td>
+          <td class="num">3</td>
+          <td class="num">1</td>
+        </tr>
+        <tr>
+          <td>Babra</td>
+          <td class="num">3</td>
+          <td class="num">9</td>
+          <td class="num">2</td>
+          <td class="num">1</td>
+        </tr>
+        <tr>
+          <td>Max</td>
+          <td class="num">2</td>
+          <td class="num">95</td>
+          <td class="num"></td>
+          <td class="num"></td>
+        </tr>
+        <tr>
+          <td>Mguku</td>
+          <td class="num">—</td>
+          <td class="num">2</td>
+          <td class="num">7</td>
+        </tr>
+        <tr>
+          <td style="border-top:2px solid var(--border); font-weight:700;">Total</td>
+          <td class="num" style="border-top:2px solid var(--border); font-weight:700;">163</td>
+          <td class="num" style="border-top:2px solid var(--border); font-weight:700;">197</td>
+          <td class="num" style="border-top:2px solid var(--border); font-weight:700;">100</td>
+          <td class="num" style="border-top:2px solid var(--border); font-weight:700;">37</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ AGENT CHART + TICKETS BY CREATOR -->
+<div class="row two">
+  <!-- Agent inbound chart -->
+  <div class="card">
+    <div class="card-title">Inbound Calls Handled by Agent <small>24 Mar 2026</small></div>
+    <div class="chart-wrap" style="height:240px;">
+      <canvas id="agentChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Tickets by creator -->
+  <div class="card">
+    <div class="card-title">Tickets by Creator <small>Top contributors</small></div>
+    <table>
+      <thead>
+        <tr>
+          <th>Staff</th>
+          <th class="num">Tickets</th>
+          <th class="num">FCR</th>
+          <th class="num">FCR %</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Glory Eliud Michael</td>
+          <td class="num">26</td>
+          <td class="num">14</td>
+          <td class="num var-pos">53.8%</td>
+        </tr>
+        <tr>
+          <td>Agatha Tobia Ernest</td>
+          <td class="num">22</td>
+          <td class="num">16</td>
+          <td class="num var-pos">72.7%</td>
+        </tr>
+        <tr>
+          <td>Nayla Hamis</td>
+          <td class="num">20</td>
+          <td class="num">5</td>
+          <td class="num var-warn">25.0%</td>
+        </tr>
+        <tr>
+          <td>Enos Mussa</td>
+          <td class="num">14</td>
+          <td class="num">3</td>
+          <td class="num var-warn">21.4%</td>
+        </tr>
+        <tr>
+          <td>Zubeda Hamza</td>
+          <td class="num">9</td>
+          <td class="num">—</td>
+          <td class="num var-neg">0%</td>
+        </tr>
+        <tr>
+          <td>Cst Intern</td>
+          <td class="num">8</td>
+          <td class="num">—</td>
+          <td class="num var-neg">0%</td>
+        </tr>
+        <tr>
+          <td>James Kaaya</td>
+          <td class="num">8</td>
+          <td class="num">2</td>
+          <td class="num var-warn">25.0%</td>
+        </tr>
+        <tr>
+          <td>Abubakar Mguku</td>
+          <td class="num">7</td>
+          <td class="num">—</td>
+          <td class="num var-neg">0%</td>
+        </tr>
+        <tr>
+          <td>Eldard Edward Moyo</td>
+          <td class="num">7</td>
+          <td class="num">3</td>
+          <td class="num var-warn">42.9%</td>
+        </tr>
+        <tr>
+          <td style="border-top:2px solid var(--border); font-weight:700;">Total</td>
+          <td class="num" style="border-top:2px solid var(--border); font-weight:700;">149</td>
+          <td class="num" style="border-top:2px solid var(--border); font-weight:700;">45</td>
+          <td class="num" style="border-top:2px solid var(--border); font-weight:700;">30.2%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ REPEAT CALLERS + FCR CHART -->
+<div class="row two">
+  <div class="card">
+    <div class="card-title">Call Volume Trend — Hourly Breakdown <small>Answered vs Dropped</small></div>
+    <div class="chart-wrap" style="height:200px;">
+      <canvas id="stackedChart"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">FCR Rate Trend <small>Weekly comparison</small></div>
+    <div class="chart-wrap" style="height:200px;">
+      <canvas id="fcrChart"></canvas>
+    </div>
+    <div style="margin-top:14px;">
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <div class="mv" style="color:var(--accent)">38.91%</div>
+          <div class="ml">14 Mar</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mv" style="color:var(--accent3)">43.45%</div>
+          <div class="ml">21 Mar</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mv" style="color:var(--accent4)">30.2%</div>
+          <div class="ml">24 Mar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ TOP REPEAT CALLERS -->
+<div class="row full">
+  <div class="card">
+    <div class="card-title">Top Repeat Callers — 24 March 2026 <small>By call frequency</small></div>
+    <table>
+      <thead>
+        <tr>
+          <th>Caller Number</th>
+          <th class="num">Calls Today</th>
+          <th>Visual</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-family:'DM Mono',monospace">+255 743 337 396</td>
+          <td class="num">6</td>
+          <td>
+            <div class="agent-bar">
+              <div class="agent-bar-track"><div class="agent-bar-fill" style="width:100%"></div></div>
+              <div class="agent-bar-label">6</div>
+            </div>
+          </td>
+          <td><span class="pill pill-red">High Repeat</span></td>
+        </tr>
+        <tr>
+          <td style="font-family:'DM Mono',monospace">+255 712 444 315</td>
+          <td class="num">5</td>
+          <td>
+            <div class="agent-bar">
+              <div class="agent-bar-track"><div class="agent-bar-fill" style="width:83%"></div></div>
+              <div class="agent-bar-label">5</div>
+            </div>
+          </td>
+          <td><span class="pill pill-red">High Repeat</span></td>
+        </tr>
+        <tr>
+          <td style="font-family:'DM Mono',monospace">+255 746 164 155</td>
+          <td class="num">5</td>
+          <td>
+            <div class="agent-bar">
+              <div class="agent-bar-track"><div class="agent-bar-fill" style="width:83%"></div></div>
+              <div class="agent-bar-label">5</div>
+            </div>
+          </td>
+          <td><span class="pill pill-red">High Repeat</span></td>
+        </tr>
+        <tr>
+          <td style="font-family:'DM Mono',monospace">+255 754 555 648</td>
+          <td class="num">5</td>
+          <td>
+            <div class="agent-bar">
+              <div class="agent-bar-track"><div class="agent-bar-fill" style="width:83%"></div></div>
+              <div class="agent-bar-label">5</div>
+            </div>
+          </td>
+          <td><span class="pill pill-red">High Repeat</span></td>
+        </tr>
+        <tr>
+          <td style="font-family:'DM Mono',monospace">+255 767 534 074</td>
+          <td class="num">5</td>
+          <td>
+            <div class="agent-bar">
+              <div class="agent-bar-track"><div class="agent-bar-fill" style="width:83%"></div></div>
+              <div class="agent-bar-label">5</div>
+            </div>
+          </td>
+          <td><span class="pill pill-red">High Repeat</span></td>
+        </tr>
+        <tr>
+          <td style="font-family:'DM Mono',monospace">+255 671 369 897</td>
+          <td class="num">4</td>
+          <td>
+            <div class="agent-bar">
+              <div class="agent-bar-track"><div class="agent-bar-fill" style="width:67%"></div></div>
+              <div class="agent-bar-label">4</div>
+            </div>
+          </td>
+          <td><span class="pill pill-blue">Monitor</span></td>
+        </tr>
+        <tr>
+          <td style="font-family:'DM Mono',monospace">+255 685 455 340</td>
+          <td class="num">4</td>
+          <td>
+            <div class="agent-bar">
+              <div class="agent-bar-track"><div class="agent-bar-fill" style="width:67%"></div></div>
+              <div class="agent-bar-label">4</div>
+            </div>
+          </td>
+          <td><span class="pill pill-blue">Monitor</span></td>
+        </tr>
+        <tr>
+          <td style="font-family:'DM Mono',monospace">+255 687 873 614</td>
+          <td class="num">4</td>
+          <td>
+            <div class="agent-bar">
+              <div class="agent-bar-track"><div class="agent-bar-fill" style="width:67%"></div></div>
+              <div class="agent-bar-label">4</div>
+            </div>
+          </td>
+          <td><span class="pill pill-blue">Monitor</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ FOOTER -->
+<div class="report-footer">
+  <div>Bonga Habari Call Centre · Daily Report · Generated 24 March 2026</div>
+  <div>Inbound: 232 calls · Answered: 203 · Dropped: 28 · Agents on shift: 9</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ CHARTS JS -->
+<script>
+Chart.defaults.color = '#7d8da8';
+Chart.defaults.borderColor = '#2a3240';
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+const hours   = ['0','1','4','5','6','7','8','9','10','11','12','13'];
+const answered= [1, 10,  1,  4,  6,  2, 16, 26, 37,  32,  23,   4];
+const dropped = [0,  1,  1,  0,  0,  0,  9, 16, 12,   7,   6,   0];
+const totalCalls = hours.map((h,i) => answered[i]+dropped[i]);
+const pctAbandon = hours.map((h,i) => totalCalls[i] > 0 ? +(dropped[i]/totalCalls[i]*100).toFixed(1) : 0);
+
+// ─── MAIN HOURLY CHART (like image 2)
+new Chart(document.getElementById('hourlyChart'), {
+  type: 'bar',
+  data: {
+    labels: hours,
+    datasets: [
+      {
+        label: 'Total Calls',
+        data: totalCalls,
+        type: 'line',
+        borderColor: '#1f8ef1',
+        backgroundColor: 'rgba(31,142,241,0.08)',
+        fill: true,
+        pointBackgroundColor: '#1f8ef1',
+        pointRadius: 4,
+        tension: 0.3,
+        yAxisID: 'y',
+        order: 0
+      },
+      {
+        label: '% Abandon',
+        data: pctAbandon,
+        type: 'bar',
+        backgroundColor: 'rgba(245,166,35,0.6)',
+        borderColor: 'rgba(245,166,35,0.9)',
+        borderWidth: 1,
+        borderRadius: 3,
+        yAxisID: 'y2',
+        order: 1
+      },
+      {
+        label: 'Calls Answered',
+        data: answered,
+        type: 'bar',
+        backgroundColor: 'rgba(39,201,122,0.3)',
+        borderColor: 'rgba(39,201,122,0.7)',
+        borderWidth: 1,
+        borderRadius: 3,
+        yAxisID: 'y',
+        order: 2
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { position: 'top', labels: { boxWidth: 12, padding: 16 } },
+      tooltip: { backgroundColor: '#1e2530', borderColor: '#2a3240', borderWidth: 1 }
+    },
+    scales: {
+      x: { grid: { color: '#1e2530' }, ticks: { font: { size: 11 } } },
+      y: {
+        position: 'left',
+        grid: { color: '#1e2530' },
+        title: { display: true, text: 'Number of Calls', font: { size: 11 } }
+      },
+      y2: {
+        position: 'right',
+        grid: { drawOnChartArea: false },
+        title: { display: true, text: '% Abandon', font: { size: 11 } },
+        ticks: { callback: v => v + '%' },
+        max: 60
+      }
+    }
+  }
+});
+
+// ─── AGENT CHART
+const agents     = ['Glory','Agatha','Philip','Enos','Irene','James','Prosister','Babra'];
+const agentCalls = [41, 33, 24, 23, 22, 8, 4, 3];
+new Chart(document.getElementById('agentChart'), {
+  type: 'bar',
+  data: {
+    labels: agents,
+    datasets: [{
+      label: 'Inbound Calls Handled',
+      data: agentCalls,
+      backgroundColor: [
+        'rgba(31,142,241,0.75)','rgba(31,142,241,0.65)','rgba(31,142,241,0.55)',
+        'rgba(31,142,241,0.50)','rgba(31,142,241,0.45)','rgba(245,166,35,0.55)',
+        'rgba(245,166,35,0.45)','rgba(245,166,35,0.40)'
+      ],
+      borderColor: [
+        '#1f8ef1','#1f8ef1','#1f8ef1','#1f8ef1','#1f8ef1','#f5a623','#f5a623','#f5a623'
+      ],
+      borderWidth: 1,
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor: '#1e2530', borderColor: '#2a3240', borderWidth: 1 }
+    },
+    scales: {
+      x: { grid: { color: '#1e2530' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// ─── STACKED CHART
+new Chart(document.getElementById('stackedChart'), {
+  type: 'bar',
+  data: {
+    labels: hours,
+    datasets: [
+      {
+        label: 'Answered',
+        data: answered,
+        backgroundColor: 'rgba(39,201,122,0.6)',
+        borderColor: 'rgba(39,201,122,0.8)',
+        borderWidth: 1,
+        borderRadius: 2,
+        stack: 'calls'
+      },
+      {
+        label: 'Dropped',
+        data: dropped,
+        backgroundColor: 'rgba(224,92,92,0.65)',
+        borderColor: 'rgba(224,92,92,0.85)',
+        borderWidth: 1,
+        borderRadius: 2,
+        stack: 'calls'
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { boxWidth: 11, padding: 12 } },
+      tooltip: { backgroundColor: '#1e2530', borderColor: '#2a3240', borderWidth: 1 }
+    },
+    scales: {
+      x: { stacked: true, grid: { color: '#1e2530' } },
+      y: { stacked: true, grid: { color: '#1e2530' } }
+    }
+  }
+});
+
+// ─── FCR TREND CHART
+new Chart(document.getElementById('fcrChart'), {
+  type: 'line',
+  data: {
+    labels: ['14 Mar', '21 Mar', '24 Mar'],
+    datasets: [
+      {
+        label: '% FCR',
+        data: [38.91, 43.45, 30.2],
+        borderColor: '#27c97a',
+        backgroundColor: 'rgba(39,201,122,0.1)',
+        fill: true,
+        pointBackgroundColor: '#27c97a',
+        pointRadius: 6,
+        tension: 0.4
+      },
+      {
+        label: 'Abandon Rate %',
+        data: [12.18, 6.33, 12.07],
+        borderColor: '#e05c5c',
+        backgroundColor: 'rgba(224,92,92,0.08)',
+        fill: true,
+        pointBackgroundColor: '#e05c5c',
+        pointRadius: 6,
+        tension: 0.4,
+        borderDash: [4, 3]
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { boxWidth: 11, padding: 12 } },
+      tooltip: {
+        backgroundColor: '#1e2530', borderColor: '#2a3240', borderWidth: 1,
+        callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + '%' }
+      }
+    },
+    scales: {
+      x: { grid: { color: '#1e2530' } },
+      y: {
+        grid: { color: '#1e2530' },
+        ticks: { callback: v => v + '%' }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
