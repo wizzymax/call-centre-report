@@ -116,14 +116,13 @@ const CONFIG = {
 
   /* ─── TOP-LEVEL KPIs ──────────────────────────────────────── */
   kpi: {
-    totalInbound:     368,
-    answered:         368,   // agents handled
+    Numberofcalls:     368,
+    answered:         ,   // agents handled
     droppedOnQueue:   0,     // update if known
     missed:           0,
-    distinctCallers:  0,     // update if known (e.g. 154 from earlier data)
-    abandonRate:      12,    // % — update to actual
-    repeatCallRate:   34,    // %
-    totalOutgoing:    528,
+    distinctCallers:  327,     // update if known (e.g. 154 from earlier data)
+    abandonRate:      36,    // % — update to actual
+    repeatCall:   41,    // %
     ticketsCreated:   261,
     fcrTickets:       85,
     fcrRate:          32.6,  // %
@@ -166,7 +165,7 @@ const CONFIG = {
     { name:"Albert-Night",     inbound:1,   outgoing:23,  tickets:0,  fcr:0  },
     { name:"Innocent-NOC",     inbound:3,   outgoing:1,   tickets:0,  fcr:0  },
     { name:"Max",              inbound:5,   outgoing:225, tickets:0,  fcr:0  },
-    { name:"Mguku",            inbound:0,   outgoing:16,  tickets:8,  fcr:0  },
+    
   ],
 
   /* ─── TICKETS BY CREATOR ──────────────────────────────────── */
