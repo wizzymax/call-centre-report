@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inbound Performance Report</title>
+<title>Bonga Habari — Performance Report</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
@@ -111,100 +111,102 @@ tbody tr:hover td{background:rgba(255,255,255,.02)}
 const CONFIG = {
 
   /* ─── REPORT META ─────────────────────────────────────────── */
-  reportDate:   "24 March 2026",
-  reportPeriod: "Daily Operations Summary",
+  reportDate:   "27 March 2026",
+  reportPeriod: "Daily Operations Summary — Today (Live)",
 
   /* ─── TOP-LEVEL KPIs ──────────────────────────────────────── */
   kpi: {
-    totalInbound:     366,
-    answered:         366,   // agents handled
-    droppedOnQueue:   53,
-    missed:           0,
-    distinctCallers:  263,     // update if known (e.g. 154 from earlier data)
-    abandonRate:      13,
-    repeatCallRate:   38,    // %
-    totalOutgoing:    421,
-    ticketsCreated:   261,
-    fcrTickets:       85,
-    fcrRate:          32.6,  // %
+    totalInbound:    288,
+    answered:        257,
+    droppedOnQueue:  29,
+    missed:          0,
+    distinctCallers: 205,
+    abandonRate:     10,   // %
+    repeatCallRate:  29,   // %
+    totalOutgoing:   367,
+    ticketsCreated:  188,
+    fcrTickets:      52,
+    fcrRate:         27.7, // %
   },
 
   /* ─── HOURLY DATA ─────────────────────────────────────────── */
-  // hours: list of hours on X axis
-  // agentHourly: each agent's call count per hour (same order as hours array)
-  // abandonPct:  % abandon per hour (set to 0 if unknown for that hour)
-  hours: [0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+  hours: [0, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
 
   agentHourly: {
-    //          Hr: 0   1   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18
-    "Glory":      [ 0,  0,  0,  0,  0,  0,  4, 10, 12,  6,  8,  5,  4,  6,  0,  9, 10],
-    "Nayla":      [ 0,  0,  0,  0,  0,  4,  6, 10, 11,  7,  1,  6,  6,  7,  7,  8,  0],
-    "Agatha":     [ 0,  0,  0,  0,  0,  0,  0,  1,  9, 14,  9,  5,  5,  7,  7,  1, 14],
-    "Enos":       [ 0,  0,  0,  0,  0,  0,  5,  7,  5,  3,  3,  0,  0,  7,  7,  5,  3],
-    "Irene":      [ 0,  0,  0,  0,  0,  0,  6,  4,  5,  2,  2,  7,  3,  1,  9,  6,  0],
-    "Philip":     [ 1, 10,  1,  4,  6,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    "James":      [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  6,  2,  0,  2,  2,  2,  0,  0],
-    "Babra":      [ 0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  2,  1,  0,  2,  0],
-    "Max":        [ 0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  0,  0,  1,  2,  0,  0,  0],
-    "Prosister":  [ 0,  0,  0,  0,  0,  0,  1,  0,  4,  0,  0,  0,  0,  0,  0,  0,  0],
-    "Innocent":   [ 0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  1,  0,  0,  0,  0,  0,  0],
+    //           Hr:  0   4   6   7   8   9  10  11  12  13  14  15
+    "Mamiro":      [  0,  0,  3,  7, 10,  4,  9,  9, 10, 10,  1,  0],
+    "Glory":       [  4,  1,  1,  0,  3,  8,  5,  9,  6,  1, 12,  0],
+    "Irene":       [  0,  0,  0,  0,  3,  5,  5,  5,  9,  7,  0,  0],
+    "Nayla":       [  0,  0,  0,  0,  0,  1,  7,  8,  9,  9,  0,  0],
+    "Agatha":      [  0,  0,  0,  0,  3,  5,  4,  4,  5,  4,  0,  0],
+    "James":       [  0,  0,  0,  0,  0,  9,  8,  3,  1,  1,  0,  0],
+    "Philip":      [  0,  0,  0,  0,  0,  0,  0,  0,  0, 16,  4,  0],
+    "Max":         [  0,  0,  0,  0,  0,  1,  3,  0,  1,  0,  5,  0],
+    "Babra":       [  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0],
   },
 
-  // % abandon per hour — update with real data
-  hourlyAbandon: [0, 9, 0, 0, 0, 0, 40, 30, 10, 15, 20, 25, 25, 20, 20, 17, 5],
+  // % abandon per hour (estimated from hourly chart)
+  hourlyAbandon: [33, 0, 0, 0, 11, 5, 14, 5, 11, 14, 5, 0],
 
   /* ─── AGENT SUMMARY ───────────────────────────────────────── */
   agents: [
-    { name:"Glory",            inbound:74,  outgoing:3,   tickets:40, fcr:20 },
-    { name:"Nayla",            inbound:73,  outgoing:27,  tickets:41, fcr:13 },
-    { name:"Agatha",           inbound:72,  outgoing:7,   tickets:53, fcr:38 },
-    { name:"Enos",             inbound:45,  outgoing:26,  tickets:22, fcr:5  },
-    { name:"Irene",            inbound:45,  outgoing:12,  tickets:0,  fcr:0  },
-    { name:"James",            inbound:14,  outgoing:30,  tickets:15, fcr:4  },
-    { name:"Babra",            inbound:8,   outgoing:22,  tickets:4,  fcr:1  },
-    { name:"Prosister",        inbound:4,   outgoing:2,   tickets:3,  fcr:1  },
-    { name:"Albert-Night",     inbound:1,   outgoing:23,  tickets:0,  fcr:0  },
-    { name:"Innocent-NOC",     inbound:3,   outgoing:1,   tickets:0,  fcr:0  },
-    { name:"Max",              inbound:5,   outgoing:225, tickets:0,  fcr:0  },
-    
+    { name:"Mamiro",           inbound:63,  outgoing:8,   tickets:15, fcr:7  },
+    { name:"Glory",            inbound:50,  outgoing:3,   tickets:40, fcr:16 },
+    { name:"Irene",            inbound:34,  outgoing:5,   tickets:20, fcr:1  },
+    { name:"Nayla",            inbound:34,  outgoing:21,  tickets:25, fcr:10 },
+    { name:"Agatha",           inbound:25,  outgoing:4,   tickets:36, fcr:18 },
+    { name:"James",            inbound:22,  outgoing:12,  tickets:8,  fcr:0  },
+    { name:"Philip",           inbound:20,  outgoing:0,   tickets:0,  fcr:0  },
+    { name:"Max",              inbound:10,  outgoing:103, tickets:0,  fcr:0  },
+    { name:"Babra",            inbound:1,   outgoing:2,   tickets:0,  fcr:0  },
+    { name:"Albert-Night",     inbound:0,   outgoing:14,  tickets:0,  fcr:0  },
+    { name:"Agape-Finance",    inbound:0,   outgoing:0,   tickets:2,  fcr:0  },
+    { name:"Hussen",           inbound:0,   outgoing:6,   tickets:0,  fcr:0  },
   ],
 
   /* ─── TICKETS BY CREATOR ──────────────────────────────────── */
   ticketCreators: [
-    { name:"Agatha Tobia Ernest",      tickets:53, fcr:38 },
-    { name:"Nayla Hamis",              tickets:41, fcr:13 },
-    { name:"Glory Eliud Michael",      tickets:40, fcr:20 },
-    { name:"Enos Mussa",               tickets:22, fcr:5  },
-    { name:"James Kaaya",              tickets:15, fcr:4  },
-    { name:"Irene",               tickets:14, fcr:0  },
-    { name:"Babra Mboya",              tickets:4,  fcr:1  },
-    { name:"Olais Philipo Mollel",     tickets:3,  fcr:0  },
-    { name:"Prosista Andrew",          tickets:3,  fcr:1  },
+    { name:"Glory Eliud Michael",      tickets:40, fcr:16 },
+    { name:"Agatha Tobia Ernest",      tickets:36, fcr:18 },
+    { name:"Nayla Hamis",              tickets:25, fcr:10 },
+    { name:"Cst Intern (Irene)",       tickets:20, fcr:1  },
+    { name:"Rosemary Mamiro",          tickets:15, fcr:7  },
+    { name:"Doreen Charles Mushi",     tickets:10, fcr:0  },
+    { name:"James Kaaya",              tickets:8,  fcr:0  },
+    { name:"Application",              tickets:7,  fcr:0  },
+    { name:"Olais Philipo Mollel",     tickets:6,  fcr:0  },
+    { name:"Zubeda Hamza",             tickets:4,  fcr:0  },
+    { name:"Prosista Andrew",          tickets:3,  fcr:0  },
+    { name:"Roza Shayo",               tickets:3,  fcr:0  },
+    { name:"Agape Mnzava",             tickets:2,  fcr:0  },
+    { name:"Agnes Thomas Somme",       tickets:2,  fcr:0  },
+    { name:"Eldard Edward Moyo",       tickets:2,  fcr:0  },
   ],
 
-  /* ─── WEEKLY KPI COMPARISON (14th vs 21st March) ─────────── */
- weeklyKPI: [
-  { name:"Total Inbound Calls",     w1:402,  w2:421,  isPercent:false, lowerBetter:true  },
-  { name:"Calls Answered",          w1:356,  w2:366,  isPercent:false, lowerBetter:null  },
-  { name:"Call Abandon Rate",       w1:11,   w2:13,   isPercent:true,  lowerBetter:true  },
-  { name:"Distinct Customers",      w1:251,  w2:263,  isPercent:false, lowerBetter:null  },
-  { name:"Repeat Calls %",          w1:38,   w2:38,   isPercent:true,  lowerBetter:true  },
-  { name:"Tickets Raised",          w1:172,  w2:261,  isPercent:false, lowerBetter:null  },
-  { name:"FCR Tickets",             w1:66,   w2:85,   isPercent:false, lowerBetter:null  },
-  { name:"% FCR",                   w1:38.4, w2:32.6, isPercent:true,  lowerBetter:false },
-],
-weeklyLabels: { w1:"21 Mar", w2:"24 Mar" },
+  /* ─── DAILY KPI COMPARISON (26 Mar vs 27 Mar) ─────────────── */
+  weeklyKPI: [
+    { name:"Total Inbound Calls",  w1:487,  w2:288,  isPercent:false, lowerBetter:true  },
+    { name:"Calls Answered",       w1:401,  w2:257,  isPercent:false, lowerBetter:null  },
+    { name:"Dropped on Queue",     w1:85,   w2:29,   isPercent:false, lowerBetter:true  },
+    { name:"Call Abandon Rate",    w1:17,   w2:10,   isPercent:true,  lowerBetter:true  },
+    { name:"Distinct Callers",     w1:284,  w2:205,  isPercent:false, lowerBetter:null  },
+    { name:"Repeat Calls %",       w1:42,   w2:29,   isPercent:true,  lowerBetter:true  },
+    { name:"Tickets Raised",       w1:249,  w2:188,  isPercent:false, lowerBetter:null  },
+    { name:"FCR Tickets",          w1:84,   w2:52,   isPercent:false, lowerBetter:null  },
+    { name:"% FCR",                w1:33.7, w2:27.7, isPercent:true,  lowerBetter:false },
+  ],
+  weeklyLabels: { w1:"26 Mar", w2:"27 Mar" },
 
   /* ─── TOP REPEAT CALLERS ──────────────────────────────────── */
   repeatCallers: [
-    { number:"+255 743 337 396", calls:6 },
-    { number:"+255 712 444 315", calls:5 },
-    { number:"+255 746 164 155", calls:5 },
-    { number:"+255 754 555 648", calls:5 },
-    { number:"+255 767 534 074", calls:5 },
-    { number:"+255 671 369 897", calls:4 },
-    { number:"+255 685 455 340", calls:4 },
-    { number:"+255 687 873 614", calls:4 },
+    { number:"+255 767 569 151", calls:6 },
+    { number:"+618 682 337",     calls:5 },
+    { number:"+255 678 180 137", calls:4 },
+    { number:"+255 749 597 307", calls:4 },
+    { number:"+255 756 886 569", calls:4 },
+    { number:"+623 215 835",     calls:4 },
+    { number:"+628 291 849",     calls:4 },
+    { number:"+255 624 785 647", calls:3 },
   ],
 
 }; // ← END OF CONFIG — do not edit below this line unless needed
@@ -212,15 +214,15 @@ weeklyLabels: { w1:"21 Mar", w2:"24 Mar" },
 
 <!-- ═══════ HTML STRUCTURE ═══════ -->
 <div class="config-banner">
-  ✏️ &nbsp;<strong>To update this report:</strong>&nbsp; <code>Contact Max</code> 
+  ✏️ &nbsp;<strong>To update this report:</strong>&nbsp; open the file, scroll to the <code>CONFIG</code> object at the top of the &lt;script&gt; tag, and change the numbers. All charts and tables refresh automatically.
 </div>
 
 <div class="hdr">
   <div class="brand">
     <div class="brand-icon">📞</div>
     <div>
-      <h1>Inbound Performance Report</h1>
-      
+      <h1>Bonga Habari</h1>
+      <p>Call Centre Performance Report</p>
     </div>
   </div>
   <div class="hdr-right">
